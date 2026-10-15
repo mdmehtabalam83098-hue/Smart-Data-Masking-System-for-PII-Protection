@@ -1,0 +1,932 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FormGuard | Smart Privacy Analyzer</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f7fb;
+      color: #172033;
+      line-height: 1.6;
+    }
+
+    header {
+      background: #10213d;
+      color: white;
+      padding: 20px 7%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .brand {
+      font-size: 25px;
+      font-weight: bold;
+    }
+
+    .brand span {
+      color: #52dfbd;
+    }
+
+    .tagline {
+      font-size: 13px;
+      color: #c5d3e7;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #10213d, #164e63);
+      color: white;
+      padding: 55px 7% 65px;
+    }
+
+    .hero h1 {
+      font-size: clamp(30px, 5vw, 45px);
+      line-height: 1.2;
+      max-width: 700px;
+      margin-bottom: 18px;
+    }
+
+    .hero p {
+      max-width: 650px;
+      color: #d5e6f3;
+      margin-bottom: 22px;
+    }
+
+    .hero-label {
+      display: inline-block;
+      color: #73f2d2;
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      margin-bottom: 14px;
+    }
+
+    .privacy-pill {
+      display: inline-block;
+      border: 1px solid #6ce8c9;
+      color: #b8ffed;
+      border-radius: 30px;
+      padding: 7px 13px;
+      font-size: 12px;
+    }
+
+    main {
+      max-width: 1150px;
+      margin: -25px auto 50px;
+      padding: 0 20px;
+      position: relative;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .card {
+      background: white;
+      padding: 26px;
+      border-radius: 15px;
+      box-shadow: 0 8px 30px rgba(24, 48, 80, 0.07);
+      margin-bottom: 22px;
+    }
+
+    .card h2 {
+      font-size: 20px;
+      margin-bottom: 7px;
+    }
+
+    .muted {
+      color: #69768b;
+      font-size: 13px;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: bold;
+      margin: 17px 0 8px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px 13px;
+      border: 1px solid #d7dfeb;
+      border-radius: 8px;
+      background: #fff;
+      color: #172033;
+      font: inherit;
+      font-size: 14px;
+      outline: none;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: #158b83;
+      box-shadow: 0 0 0 3px rgba(21, 139, 131, 0.10);
+    }
+
+    textarea {
+      min-height: 150px;
+      resize: vertical;
+    }
+
+    .hint {
+      font-size: 12px;
+      color: #718096;
+      margin-top: 6px;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 12px 17px;
+      font-weight: bold;
+      font-size: 13px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      opacity: 0.9;
+    }
+
+    .primary {
+      background: #087f72;
+      color: white;
+      flex: 1;
+    }
+
+    .secondary {
+      background: #e9f2f4;
+      color: #145b61;
+    }
+
+    .result-placeholder {
+      text-align: center;
+      padding: 35px 12px;
+      color: #718096;
+    }
+
+    .shield {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+
+    .risk-box {
+      border-radius: 12px;
+      padding: 20px;
+      background: #f0f8f7;
+      margin: 18px 0;
+    }
+
+    .risk-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .score {
+      font-size: 34px;
+      font-weight: bold;
+    }
+
+    .risk-badge {
+      border-radius: 30px;
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: bold;
+      background: #d8f5e8;
+      color: #146c43;
+    }
+
+    .bar {
+      height: 9px;
+      background: #dfe8ee;
+      border-radius: 20px;
+      overflow: hidden;
+      margin: 14px 0 9px;
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: 0;
+      background: #119b81;
+      transition: width 0.4s;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 18px 0;
+    }
+
+    .stat {
+      padding: 14px 8px;
+      border: 1px solid #e3e9f0;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 23px;
+    }
+
+    .stat span {
+      color: #68778b;
+      font-size: 11px;
+    }
+
+    .finding {
+      border: 1px solid #e0e7ef;
+      border-radius: 10px;
+      padding: 15px;
+      margin-top: 12px;
+    }
+
+    .finding h3 {
+      font-size: 15px;
+      margin-bottom: 7px;
+    }
+
+    .finding p {
+      font-size: 13px;
+      color: #58667b;
+      margin-top: 5px;
+    }
+
+    .finding .suggestion {
+      color: #087568;
+    }
+
+    .level {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: bold;
+      border-radius: 20px;
+      padding: 4px 9px;
+      margin-bottom: 8px;
+    }
+
+    .high {
+      background: #ffe4e4;
+      color: #b42318;
+    }
+
+    .medium {
+      background: #fff1cf;
+      color: #8a5a00;
+    }
+
+    .low {
+      background: #dff7e9;
+      color: #176b44;
+    }
+
+    .section-title {
+      margin: 24px 0 8px;
+      font-size: 16px;
+    }
+
+    .info-card {
+      background: #eaf5ff;
+      border: 1px solid #d1e9ff;
+      padding: 17px;
+      border-radius: 11px;
+      font-size: 13px;
+      color: #254b70;
+      margin-top: 16px;
+    }
+
+    .info-card strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .empty-findings {
+      color: #69768b;
+      font-size: 13px;
+      padding: 15px 0;
+    }
+
+    footer {
+      background: #10213d;
+      color: #d2deed;
+      text-align: center;
+      padding: 25px 15px;
+      font-size: 12px;
+    }
+
+    footer p {
+      margin: 5px 0;
+    }
+
+    @media (max-width: 760px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      header {
+        padding: 18px 5%;
+      }
+
+      .hero {
+        padding: 40px 5% 50px;
+      }
+
+      main {
+        padding: 0 12px;
+      }
+
+      .card {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="brand">Form<span>Guard</span></div>
+    <div class="tagline">SMART PERSONAL DATA PROTECTION</div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-label">PRIVACY-FIRST TECHNOLOGY</div>
+    <h1>Before you share your data, check what a form really needs.</h1>
+    <p>
+      Analyze online form fields against their stated purpose.
+      Discover potentially excessive data requests and find safer alternatives.
+    </p>
+    <div class="privacy-pill">🔒 Analysis stays in your browser</div>
+  </section>
+
+  <main>
+    <div class="layout">
+      <section class="card">
+        <h2>Analyze a form</h2>
+        <p class="muted">
+          Enter the purpose and the information the form requests.
+        </p>
+
+        <label for="purpose">What is the form used for?</label>
+        <select id="purpose">
+          <option value="newsletter">Newsletter subscription</option>
+          <option value="shopping">Online shopping</option>
+          <option value="job">Job application</option>
+          <option value="education">Student registration</option>
+          <option value="banking">Banking or financial service</option>
+          <option value="health">Healthcare appointment</option>
+          <option value="account">Account registration</option>
+          <option value="other">Other purpose</option>
+        </select>
+
+        <label for="customPurpose">Describe the purpose (optional)</label>
+        <input id="customPurpose"
+          placeholder="e.g. Send monthly product updates">
+
+        <label for="fields">Requested form fields</label>
+        <textarea id="fields"
+          placeholder="Enter one field per line&#10;Example:&#10;Email address&#10;Aadhaar number&#10;Home address"></textarea>
+        <p class="hint">
+          Enter field names only. Never paste actual passwords, identity numbers,
+          bank details, or other real personal information.
+        </p>
+
+        <div class="buttons">
+          <button class="primary" onclick="analyzeForm()">
+            Analyze Privacy Risk →
+          </button>
+          <button class="secondary" onclick="loadSample()">
+            Try Sample
+          </button>
+          <button class="secondary" onclick="clearForm()">
+            Clear
+          </button>
+        </div>
+
+        <div class="info-card">
+          <strong>💡 What makes FormGuard different?</strong>
+          It compares requested data with the form's purpose instead of
+          only looking for personal information.
+        </div>
+      </section>
+
+      <section class="card" id="results">
+        <h2>Privacy analysis</h2>
+        <p class="muted">Your results will appear here.</p>
+
+        <div id="placeholder" class="result-placeholder">
+          <div class="shield">🛡️</div>
+          <h3>Ready to check your form?</h3>
+          <p>Enter the form fields and select Analyze Privacy Risk.</p>
+        </div>
+
+        <div id="report" hidden>
+          <div class="risk-box">
+            <div class="risk-top">
+              <div>
+                <div class="muted" style="margin-bottom:3px">
+                  Estimated overcollection risk
+                </div>
+                <div class="score"><span id="score">0</span>/100</div>
+              </div>
+              <span id="riskBadge" class="risk-badge">LOW RISK</span>
+            </div>
+            <div class="bar">
+              <div id="barFill" class="bar-fill"></div>
+            </div>
+            <p id="riskDescription" style="font-size:13px"></p>
+          </div>
+
+          <div class="stats">
+            <div class="stat">
+              <strong id="totalFields">0</strong>
+              <span>FIELDS CHECKED</span>
+            </div>
+            <div class="stat">
+              <strong id="flaggedFields">0</strong>
+              <span>FIELDS FLAGGED</span>
+            </div>
+            <div class="stat">
+              <strong id="sensitiveFields">0</strong>
+              <span>SENSITIVE FIELDS</span>
+            </div>
+          </div>
+
+          <h3 class="section-title">Field-by-field findings</h3>
+          <div id="findings"></div>
+
+          <h3 class="section-title">Recommended next steps</h3>
+          <div id="recommendations"></div>
+
+          <div class="buttons">
+            <button class="primary" onclick="downloadReport()">
+              Download Report
+            </button>
+            <button class="secondary" onclick="window.print()">
+              Print Results
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="card">
+      <h2>How FormGuard works</h2>
+      <div class="stats">
+        <div class="stat">
+          <strong>01</strong>
+          <span>DEFINE PURPOSE</span>
+        </div>
+        <div class="stat">
+          <strong>02</strong>
+          <span>CHECK EACH FIELD</span>
+        </div>
+        <div class="stat">
+          <strong>03</strong>
+          <span>REVIEW ALTERNATIVES</span>
+        </div>
+      </div>
+      <p class="muted" style="margin-bottom:0">
+        FormGuard uses transparent, rule-based checks in this demonstration.
+        It cannot determine legal compliance or prove that a field is unnecessary.
+        A human should review the context of each warning.
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <p><strong>FormGuard</strong> — Smarter choices for personal data privacy.</p>
+    <p>Student project prototype | Rule-based demonstration</p>
+    <p>Do not enter real personal or confidential information.</p>
+  </footer>
+
+  <script>
+    let lastReport = null;
+
+    const rules = [
+      {
+        name: "Government identity number",
+        words: ["aadhaar", "aadhar", "pan number", "passport number",
+                "voter id", "social security number"],
+        sensitive: true,
+        severity: 35,
+        explain: "A government identity number can expose highly sensitive identity information.",
+        alternative: "Ask whether identity verification is actually required. If needed, explain why and collect it through an appropriate secure process."
+      },
+      {
+        name: "Password or authentication secret",
+        words: ["password", "otp", "one-time password", "security answer",
+                "pin code", "bank pin", "upi pin", "cvv"],
+        sensitive: true,
+        severity: 40,
+        explain: "Authentication secrets should not be collected without a clear and secure authentication need.",
+        alternative: "Use a trusted authentication flow. Never ask for a bank PIN, UPI PIN, or an OTP unrelated to the service."
+      },
+      {
+        name: "Banking or payment details",
+        words: ["bank account", "account number", "debit card",
+                "credit card", "card number", "ifsc", "payment details"],
+        sensitive: true,
+        severity: 30,
+        explain: "Financial information can create fraud and privacy risks if unnecessarily collected.",
+        alternative: "Use a trusted payment provider and request only the information necessary for the transaction."
+      },
+      {
+        name: "Health information",
+        words: ["medical history", "health condition", "diagnosis",
+                "blood group", "medical record", "prescription"],
+        sensitive: true,
+        severity: 25,
+        explain: "Health information is sensitive and should be linked to a clear service need.",
+        alternative: "Collect only relevant health details and explain why they are needed."
+      },
+      {
+        name: "Precise location or home address",
+        words: ["home address", "residential address", "live location",
+                "gps location", "exact location", "full address"],
+        sensitive: true,
+        severity: 24,
+        explain: "Precise location or residential details may reveal where a person lives or spends time.",
+        alternative: "Request an approximate area or collect an address only when delivery or another clear purpose requires it."
+      },
+      {
+        name: "Date of birth or age",
+        words: ["date of birth", "dob", "birth date", "birthday", "age"],
+        sensitive: false,
+        severity: 14,
+        explain: "A full birth date may reveal more information than a service needs.",
+        alternative: "Consider asking for an age range or an eligibility confirmation instead."
+      },
+      {
+        name: "Phone number",
+        words: ["phone number", "mobile number", "telephone number",
+                "contact number"],
+        sensitive: false,
+        severity: 12,
+        explain: "Phone numbers can be used for tracking, unwanted contact, or account recovery.",
+        alternative: "Make the number optional if email or another method is sufficient."
+      },
+      {
+        name: "Personal email",
+        words: ["email", "e-mail"],
+        sensitive: false,
+        severity: 5,
+        explain: "An email address identifies a person and can be used for tracking or marketing.",
+        alternative: "Collect it only if needed for contact, account access, or delivery of the requested service."
+      },
+      {
+        name: "Full name",
+        words: ["full name", "first name", "last name", "surname"],
+        sensitive: false,
+        severity: 5,
+        explain: "Names can identify individuals, particularly when combined with other fields.",
+        alternative: "Consider whether a display name or no name is sufficient."
+      },
+      {
+        name: "Salary or employment details",
+        words: ["salary", "annual income", "monthly income",
+                "employer name", "employment history"],
+        sensitive: true,
+        severity: 20,
+        explain: "Income and employment details can reveal financial and professional circumstances.",
+        alternative: "Request these details only when relevant, such as for a job or financial assessment."
+      },
+      {
+        name: "Photo or biometric information",
+        words: ["photo", "selfie", "fingerprint", "face scan",
+                "facial recognition", "biometric", "voice sample"],
+        sensitive: true,
+        severity: 28,
+        explain: "Images and biometric information can be identifying and difficult to replace if misused.",
+        alternative: "Explain the specific need and consider a less intrusive verification method."
+      },
+      {
+        name: "Family or emergency contact",
+        words: ["family contact", "emergency contact", "relative phone",
+                "parent phone"],
+        sensitive: false,
+        severity: 12,
+        explain: "This information may expose another person's personal details.",
+        alternative: "Ask only when the service genuinely requires it, and explain the purpose."
+      }
+    ];
+
+    const purposeNeeds = {
+      newsletter: ["email"],
+      shopping: ["address", "phone", "email", "name"],
+      job: ["name", "email", "phone", "salary", "address"],
+      education: ["name", "email", "phone", "dob", "address"],
+      banking: ["name", "email", "phone", "dob", "bank", "identity"],
+      health: ["name", "email", "phone", "health", "dob"],
+      account: ["email", "name", "phone", "password"],
+      other: []
+    };
+
+    function getMatchingRule(field) {
+      const normalized = field.toLowerCase().trim();
+      return rules.find(rule =>
+        rule.words.some(word => normalized.includes(word))
+      );
+    }
+
+    function purposeRelevance(field, purpose) {
+      const value = field.toLowerCase();
+      const needs = purposeNeeds[purpose] || [];
+
+      const category = rules.find(rule =>
+        rule.words.some(word => value.includes(word))
+      );
+
+      if (!category) return "unknown";
+
+      const matches = {
+        address: ["address", "location"],
+        phone: ["phone", "mobile", "telephone", "contact number"],
+        email: ["email", "e-mail"],
+        name: ["name", "surname"],
+        dob: ["birth", "dob", "age"],
+        health: ["health", "medical", "diagnosis", "blood group"],
+        bank: ["bank", "account number", "card", "payment", "ifsc"],
+        identity: ["aadhaar", "aadhar", "pan number", "passport", "voter id"],
+        salary: ["salary", "income", "employer", "employment"],
+        password: ["password", "otp", "security answer"]
+      };
+
+      const categoryKey = Object.keys(matches).find(key =>
+        matches[key].some(term => value.includes(term))
+      );
+
+      if (categoryKey && needs.includes(categoryKey)) return "likely";
+      return "review";
+    }
+
+    function analyzeForm() {
+      const purpose = document.getElementById("purpose").value;
+      const customPurpose = document.getElementById("customPurpose").value.trim();
+      const raw = document.getElementById("fields").value.trim();
+
+      if (!raw) {
+        alert("Please enter at least one form field.");
+        return;
+      }
+
+      const fields = [...new Set(
+        raw.split(/\n|,/).map(f => f.trim()).filter(Boolean)
+      )];
+
+      if (fields.length > 50) {
+        alert("For this demo, analyze up to 50 fields at a time.");
+        return;
+      }
+
+      let totalScore = 0;
+      let sensitiveCount = 0;
+      let flaggedCount = 0;
+
+      const findings = fields.map(field => {
+        const rule = getMatchingRule(field);
+        const relevance = purposeRelevance(field, purpose);
+        let points = 0;
+        let level = "LOW";
+        let explanation = "No known sensitive-field pattern was detected. This does not guarantee that the field is safe.";
+        let alternative = "Confirm that the field is needed for the stated purpose.";
+
+        if (rule) {
+          if (rule.sensitive) sensitiveCount++;
+          points = rule.severity;
+          explanation = rule.explain;
+          alternative = rule.alternative;
+
+          if (relevance === "review") {
+            points += 15;
+            explanation += " Its necessity for the selected form purpose should be reviewed.";
+          } else if (relevance === "likely") {
+            points = Math.max(2, points - 10);
+            explanation += " This field may be relevant to the selected purpose, but should still be justified.";
+          }
+
+          level = points >= 35 ? "HIGH" : points >= 18 ? "MEDIUM" : "LOW";
+        } else {
+          level = "LOW";
+        }
+
+        if (rule && relevance === "review") flaggedCount++;
+
+        totalScore += points;
+
+        return {
+          field,
+          points,
+          level,
+          explanation,
+          alternative,
+          category: rule ? rule.name : "No known pattern detected",
+          relevance
+        };
+      });
+
+      // Normalized heuristic score, not a validated security measurement.
+      const score = Math.min(100, Math.round(
+        totalScore / Math.max(1, fields.length) * 2.5
+      ));
+
+      const risk = score >= 60 ? "HIGH" : score >= 30 ? "MEDIUM" : "LOW";
+      const purposeNames = {
+        newsletter: "Newsletter subscription",
+        shopping: "Online shopping",
+        job: "Job application",
+        education: "Student registration",
+        banking: "Banking or financial service",
+        health: "Healthcare appointment",
+        account: "Account registration",
+        other: "Other purpose"
+      };
+
+      lastReport = {
+        purpose: customPurpose || purposeNames[purpose],
+        score,
+        risk,
+        fields: findings,
+        flaggedCount,
+        sensitiveCount,
+        date: new Date().toLocaleString()
+      };
+
+      document.getElementById("placeholder").hidden = true;
+      document.getElementById("report").hidden = false;
+
+      document.getElementById("score").textContent = score;
+      document.getElementById("riskBadge").textContent = risk + " RISK";
+      document.getElementById("riskDescription").textContent =
+        risk === "HIGH"
+          ? "Several fields may warrant careful review before submitting the form."
+          : risk === "MEDIUM"
+          ? "Some fields may collect more information than necessary. Review the findings."
+          : "The heuristic score is relatively low. Still review every field.";
+
+      const badge = document.getElementById("riskBadge");
+      badge.style.background = risk === "HIGH" ? "#ffe4e4" :
+        risk === "MEDIUM" ? "#fff1cf" : "#d8f5e8";
+      badge.style.color = risk === "HIGH" ? "#b42318" :
+        risk === "MEDIUM" ? "#8a5a00" : "#146c43";
+
+      const bar = document.getElementById("barFill");
+      bar.style.width = score + "%";
+      bar.style.background = risk === "HIGH" ? "#d92d20" :
+        risk === "MEDIUM" ? "#e6a323" : "#119b81";
+
+      document.getElementById("totalFields").textContent = fields.length;
+      document.getElementById("flaggedFields").textContent = flaggedCount;
+      document.getElementById("sensitiveFields").textContent = sensitiveCount;
+
+      const findingsElement = document.getElementById("findings");
+      findingsElement.innerHTML = "";
+
+      findings.forEach(item => {
+        const article = document.createElement("article");
+        article.className = "finding";
+
+        const badgeClass = item.level.toLowerCase();
+
+        const title = document.createElement("h3");
+        title.textContent = item.field;
+
+        const level = document.createElement("span");
+        level.className = "level " + badgeClass;
+        level.textContent = item.level + " REVIEW PRIORITY";
+
+        const category = document.createElement("p");
+        category.textContent = "Category: " + item.category;
+
+        const explanation = document.createElement("p");
+        explanation.textContent = item.explanation;
+
+        const suggestion = document.createElement("p");
+        suggestion.className = "suggestion";
+        suggestion.textContent = "Suggestion: " + item.alternative;
+
+        article.append(level, title, category, explanation, suggestion);
+        findingsElement.appendChild(article);
+      });
+
+      const recommendations = document.getElementById("recommendations");
+      recommendations.innerHTML = "";
+
+      const tips = [
+        "Ask whether every field is necessary for the stated purpose.",
+        "Make optional fields clearly optional.",
+        "Explain why sensitive information is requested.",
+        "Review the organization's privacy policy before sharing information."
+      ];
+
+      tips.forEach(tip => {
+        const p = document.createElement("p");
+        p.style.cssText = "font-size:13px;margin:9px 0;color:#58667b";
+        p.textContent = "✓ " + tip;
+        recommendations.appendChild(p);
+      });
+
+      document.getElementById("results").scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }
+
+    function loadSample() {
+      document.getElementById("purpose").value = "newsletter";
+      document.getElementById("customPurpose").value =
+        "Send monthly newsletter updates";
+      document.getElementById("fields").value =
+        "Email address\nFull name\nAadhaar number\nHome address\nDate of birth\nPhone number";
+      analyzeForm();
+    }
+
+    function clearForm() {
+      document.getElementById("customPurpose").value = "";
+      document.getElementById("fields").value = "";
+      document.getElementById("purpose").value = "newsletter";
+      document.getElementById("placeholder").hidden = false;
+      document.getElementById("report").hidden = true;
+      lastReport = null;
+    }
+
+    function downloadReport() {
+      if (!lastReport) {
+        alert("Analyze a form before downloading a report.");
+        return;
+      }
+
+      const lines = [
+        "FORMGUARD PRIVACY ANALYSIS REPORT",
+        "=================================",
+        "Purpose: " + lastReport.purpose,
+        "Date: " + lastReport.date,
+        "Estimated risk score: " + lastReport.score + "/100",
+        "Risk level: " + lastReport.risk,
+        "Fields flagged for review: " + lastReport.flaggedCount,
+        "Sensitive categories detected: " + lastReport.sensitiveCount,
+        "",
+        "FIELD FINDINGS",
+        "--------------"
+      ];
+
+      lastReport.fields.forEach(item => {
+        lines.push(
+          "",
+          "Field: " + item.field,
+          "Priority: " + item.level,
+          "Category: " + item.category,
+          "Finding: " + item.explanation,
+          "Suggestion: " + item.alternative
+        );
+      });
+
+      lines.push(
+        "",
+        "LIMITATIONS",
+        "This is a rule-based student demonstration, not a validated risk score.",
+        "Findings are not legal advice or proof of excessive collection.",
+        "Review each field in context before making a decision."
+      );
+
+      const blob = new Blob([lines.join("\n")], {
+        type: "text/plain;charset=utf-8"
+      });
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "FormGuard_Privacy_Report.txt";
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>
